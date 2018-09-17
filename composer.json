@@ -1,0 +1,36 @@
+{
+    "name": "fomvasss/laravel-url-aliases",
+    "description": "Use url-aliases (path) in Laravel project",
+    "type": "composer-package",
+    "keywords": [
+        "fomvasss", "laravel", "aliases", "url", "uri", "path"
+    ],
+    "authors": [
+        {
+            "name": "Vasyl Fomin",
+            "email": "fomvasss@gmail.com",
+            "role": "Developer"
+        }
+    ],
+    "license": "MIT",
+    "require": {
+        "php" : ">=7.0.0",
+        "illuminate/support": "5.6.*|5.7.*",
+        "illuminate/database": "5.6.*|5.7.*"
+    },
+    "autoload": {
+        "psr-4": {
+            "Fomvasss\\UrlAliases\\": "src"
+        },
+        "files": [
+            "src/helpers.php"
+        ]
+    },
+    "extra": {
+        "laravel": {
+            "providers": [
+                "Fomvasss\\UrlAliases\\ServiceProvider"
+            ]
+        }
+    }
+}
