@@ -19,7 +19,7 @@ class CreateUrlAliasesTable extends Migration
             $table->string('aliased_path')->unique();           // article/some-slug-article
             $table->string('type', 25)->nullable();      // null (is alias) | 301 | 302
             $table->string('model_type')->nullable();
-            $table->tinyInteger('model_id')->nullable();
+            $table->integer('model_id')->nullable();
 
             $table->index(['model_type', 'model_id']);
         });
