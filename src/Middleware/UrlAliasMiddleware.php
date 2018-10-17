@@ -26,7 +26,8 @@ class UrlAliasMiddleware
 
                 // redirect in alias
                 if (in_array($redirectStatus, ['301', '302'])) {
-                    return redirect(url($urlModel->aliased_path), $redirectStatus);
+                    $params = count($request->all()) ? '?'.http_build_query($request->all()) : '';
+                    return redirect(url($urlModel->aliased_path).$params, $redirectStatus);
                 }
 
             // is aliased_path
