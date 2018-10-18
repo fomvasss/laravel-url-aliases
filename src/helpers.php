@@ -2,26 +2,32 @@
 
 if (!function_exists('route_alias')) {
     /**
-     * Получить url-путь (алиас/системный путь) для сущности
-     * @param string $str
-     * @return array
+     * Get URL-path (alias/system path) for entity.
+     *
+     * @param string $systemName
+     * @param \Illuminate\Database\Eloquent\Model $entity
+     * @param array $parameters
+     * @param bool $absolute
+     * @return string
      */
-    function route_alias(string $systemName, \Illuminate\Database\Eloquent\Model $entity, array $parameters = []): string
+    function route_alias(string $systemName, \Illuminate\Database\Eloquent\Model $entity, array $parameters = [], $absolute = true): string
     {
         if ($alias = optional($entity->urlAlias)->aliased_path) {
             if (count($parameters)) {
-                return url($alias.'?'.http_build_query($parameters));
+                $alias = $alias.'?'.http_build_query($parameters);
             }
-            return url($alias);
+            return $absolute ? url($alias) : $alias;
         }
 
-        return route($systemName, array_merge([$entity], $parameters));
+        return route($systemName, array_merge([$entity], $parameters), $absolute);
     }
 }
 
 
 if (!function_exists('clear_url_path')) {
     /**
+     * Clear URL-path.
+     *
      * @param string $str
      * @return array
      */
