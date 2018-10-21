@@ -2,24 +2,30 @@
 
 if (!function_exists('route_alias')) {
     /**
-     * Get URL-path (alias/system path) for entity.
      *
+     * Get URL-path (alias/system path) for entity.
+     * 
      * @param string $systemName
-     * @param \Illuminate\Database\Eloquent\Model $entity
-     * @param array $parameters
+     * @param array $parameters [\Illuminate\Database\Eloquent\Model]
      * @param bool $absolute
      * @return string
      */
-    function route_alias(string $systemName, \Illuminate\Database\Eloquent\Model $entity, array $parameters = [], $absolute = true): string
+    function route_alias(string $systemName, $parameters = [], $absolute = true): string
     {
-        if ($alias = optional($entity->urlAlias)->aliased_path) {
-            if (count($parameters)) {
-                $alias = $alias.'?'.http_build_query($parameters);
+        $parameters = array_wrap($parameters);
+
+        if (! empty($parameters[0]) && ($parameters[0] instanceof \Illuminate\Database\Eloquent\Model)) {
+            $entity = $parameters[0];
+            if ($alias = optional($entity->urlAlias)->aliased_path) {
+                unset($parameters[0]);
+                if (count($parameters)) {
+                    $alias = $alias . '?' . http_build_query($parameters);
+                }
+                return $absolute ? url($alias) : $alias;
             }
-            return $absolute ? url($alias) : $alias;
         }
 
-        return route($systemName, array_merge([$entity], $parameters), $absolute);
+        return route($systemName, $parameters, $absolute);
     }
 }
 

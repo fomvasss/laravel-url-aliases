@@ -31,7 +31,7 @@ Add to your model trait: `Fomvasss\UrlAliases\Traits\UrlAliasable`
 This trait have the next relation-method:
 -  `urlAlias()` //return model UrlAlias
 and Scope for your model:
-- `urla()`      // return string url (alias)
+- `urlA()`      // return string url (alias)
 
 __Do not forget use `with('urlAlias')` in your models!__
 
@@ -57,9 +57,13 @@ $article = Models\Article::find(1);
 ```
 
 ```blade
-<a href="{{ route('system.article.show', $article) }}">System Link</a>
-<a href="{{ url(optional($article->urlAlias)->aliased_path) }}">Alias Link</a>
-<a href="{{ $article->urla() }}">Alias Link</a>
-<a href="{{ route_alias('system.article.show', $article, ['qq' => '11']) }}">Alias Link</a>
-<a href="{{ route_alias('system.article.show', $article, ['page' => '3', 'per_page' => 15]) }}">Alias Link</a>
+    <li><a href="{{ route_alias('system.article.index', ['page' => '3', 'per_page' => 15]) }}">All articles</a></li>
+    <li><a href="{{ route('system.article.show', $article->id) }}">System Link - 301 redirect to alias (if exists)</a></li>
+    <li><a href="{{ url(optional($article->urlAlias)->aliased_path) }}">Alias Link</a></li>
+    <li><a href="{{ url($article->urlA()) }}">Alias Link</a></li>
+    <li><a href="{{ route_alias('system.article.show', [$article, 'page' => '3', 'per_page' => 15]) }}">Alias Link</a></li>
+    <li><a href="{{ route_alias('system.article.show', $article, false) }}">Alias Link</a></li>
+    <li><a href="{{ route_alias('system.article.show', ['page' => '3', 'per_page' => 15]) }}">System Link</a></li>
+    <li><a href="{{ request()->path() }}">System Link</a></li>
 ```
+(For one entity first index must by instanceof \Illuminate\Database\Eloquent\Model)

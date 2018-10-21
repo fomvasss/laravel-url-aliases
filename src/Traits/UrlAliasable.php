@@ -17,7 +17,7 @@ trait UrlAliasable
         return $this->morphOne($model, 'model');
     }
     
-    public function scopeUrla()
+    public function scopeUrlA()
     {
         return $this->urlAlias ? url($this->urlAlias->aliased_path) : abort(404);
     }
