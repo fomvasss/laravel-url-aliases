@@ -16,6 +16,13 @@ trait UrlAliasable
 
         return $this->morphOne($model, 'model');
     }
+
+    public function urlAliases()
+    {
+        $model = config('url-aliases.model', \Fomvasss\UrlAliases\Models\UrlAlias::class);
+
+        return $this->morphMany($model, 'model');
+    }
     
     public function scopeUrlA()
     {

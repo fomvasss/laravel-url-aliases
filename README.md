@@ -30,15 +30,11 @@ Add to your model trait: `Fomvasss\UrlAliases\Traits\UrlAliasable`
 
 This trait have the next relation-method:
 -  `urlAlias()` //return model UrlAlias
+-  `urlAliases()` //return models UrlAliases
 and Scope for your model:
-- `urlA()`      // return string url (alias)
+- `urlA()`      // return string url (alias - first!)
 
 __Do not forget use `with('urlAlias')` in your models!__
-
-```php
-$article = Models\Article::find(2);
-$article->urlAlias;
-```
 
 Add the middleware to `Http/Kernel.php`:
 ```php
@@ -52,8 +48,56 @@ Add the middleware to `Http/Kernel.php`:
 - `route_alias()` // works the same way as Laravel helper `route()`
 
 ### Example:
+
+
+- `routes/web.php`:
+
 ```php
-$article = Models\Article::find(1);
+Route::group(['prefix' => 'system', 'as' => 'system'], function () {
+    Route::get('article', 'ArticleController@index')->name('article.index');
+    Route::get('article/{id}', 'ArticleController@show')->name('article.show');
+    Route::post('article', 'ArticleController@store')->name('article.store');
+});
+```
+
+- `app/Http/Controllers/ArticleController.php`:
+
+```php
+
+public function store(Request $request)
+{
+    $articles = Models\Article::paginate($request->per_page);
+    
+    return view('article.index', compact('articles'));
+}
+
+
+public function store(Request $request)
+{
+    $article = Models\Article::create($request->only([
+        //...
+    ]);
+    
+    $article->urlAlias()->updateOrCreate([
+        'system_path' => trim(route('system.article.show', $article, false), '/'),
+        'aliased_path' => str_slug($article->title).'/'.str_slug($article->user->name),
+    ]);
+
+    return redirect()->route('system.article.index');
+}
+
+public function show(Request $request, $id)
+{
+    $article = Models\Article::findOrFail($id);
+
+    // $article->urlAlias;
+    // $article->urlA();
+    // $request->server('REQUEST_URI'); // system/article/32
+    // $request->server('ALIAS_REQUEST_URI'); // some-title-article/taylor-otwell
+
+    return view('article.show', compact('article'));
+}
+
 ```
 
 ```blade
@@ -66,4 +110,4 @@ $article = Models\Article::find(1);
     <li><a href="{{ route_alias('system.article.show', ['page' => '3', 'per_page' => 15]) }}">System Link</a></li>
     <li><a href="{{ request()->path() }}">System Link</a></li>
 ```
-(For one entity first index must by instanceof \Illuminate\Database\Eloquent\Model)
+(For entity first array index must by instanceof \Illuminate\Database\Eloquent\Model)

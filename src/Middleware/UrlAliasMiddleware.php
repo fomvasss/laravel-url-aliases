@@ -63,7 +63,7 @@ class UrlAliasMiddleware
             $request->attributes->all(),
             $request->cookies->all(),
             $request->files->all(),
-            $newRequest->server->all(),
+            $newRequest->server->all() + ['ALIAS_REQUEST_URI' => $request->path()],
 //            $request->server->all(),
             $request->getContent()
         );
