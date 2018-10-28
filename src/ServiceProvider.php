@@ -16,13 +16,16 @@ class ServiceProvider extends \Illuminate\Support\ServiceProvider
      */
     public function boot()
     {
-        $this->publishedConfig();
+        $this->publishConfig();
 
-        $this->makeMigrations();
+        $this->publishMigrations();
 
-        $this->makeSeeder();
+        $this->publishSeeder();
         
 //        $this->registerMiddleware(UrlAliasMiddleware::class);
+
+        $this->makeBladeDirective();
+        
     }
 
     /**
@@ -35,27 +38,29 @@ class ServiceProvider extends \Illuminate\Support\ServiceProvider
         $this->mergeConfigFrom(__DIR__.'/../config/url-aliases.php', 'url-aliases');
     }
 
-    protected function publishedConfig()
+    protected function publishConfig()
     {
-        $this->publishes([__DIR__ . '/../config/url-aliases.php' => config_path('url-aliases.php')
+        $this->publishes([
+            __DIR__ . '/../config/url-aliases.php' => config_path('url-aliases.php')
         ], 'url-aliases-config');
     }
 
-    protected function makeSeeder()
+    protected function publishSeeder()
     {
         $seedPath = __DIR__ . '/../database/seeds/UrlAliasesTableSeeder.php.stub';
-        $this->publishes([$seedPath => database_path('seeds/UrlAliasesTableSeeder.php')
-            ], 'url-aliases-seeder');
+        $this->publishes([
+            $seedPath => database_path('seeds/UrlAliasesTableSeeder.php')
+        ], 'url-aliases-seeder');
     }
 
-    protected function makeMigrations()
+    protected function publishMigrations()
     {
         if (! class_exists('CreateUrlAliasesTable')) {
             $timestamp = date('Y_m_d_His', time());
 
             $migrationPath = __DIR__.'/../database/migrations/create_url_aliases_table.php';
-            $this->publishes([$migrationPath => database_path('/migrations/' . $timestamp . '_create_url_aliases_table.php'),
-                ], 'url-aliases-migrations');
+                $this->publishes([$migrationPath => database_path('/migrations/' . $timestamp . '_create_url_aliases_table.php'),
+            ], 'url-aliases-migrations');
         }
     }
 
@@ -63,6 +68,25 @@ class ServiceProvider extends \Illuminate\Support\ServiceProvider
     {
         $kernel = $this->app[Kernel::class];
         $kernel->pushMiddleware($middleware);
+    }
+
+    /**
+     * Make blade directive "@urlAliasCurrent()"
+     */
+    protected function makeBladeDirective()
+    {
+        \Blade::directive('urlAliasCurrent', function ($expression) {
+
+            list($absolute) = explode(', ', $expression);
+
+            $path = request()->server('ALIAS_REQUEST_URI', request()->path());
+
+            if (($absolute || $absolute === '') && $absolute != 'false') {
+                $path = url($path);
+            }
+
+            return "<?php echo('{$path}'); ?>";
+        });
     }
 
     protected function checkMakeDir(string $path)

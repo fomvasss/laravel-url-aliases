@@ -2,14 +2,32 @@
 
 return [
 
+    /*
+     * Default url-alias model
+     */
     'model' => \Fomvasss\UrlAliases\Models\UrlAlias::class,
 
-    'redirect_for_system_path' => 301, // 301 | 302 | false
+    /*
+     * If visit systep path.
+     * [301|302|false]
+     */
+    'redirect_for_system_path' => 301,
 
-    'available_mathods' => ['GET'], // if empty - available all methods
+    /*
+     * If empty - available all methods.
+     */
+    'available_methods' => ['GET'],
 
-    'ignore_paths' => [ // do not apply aliases for paths
-        'admin/',
+    /*
+     * Do not apply aliases for paths.
+     */
+    'ignore_paths' => [
+        'admin/*',
         '*download*',
-    ]
+    ],
+    
+    /*
+     * For scope UrlA() - if aliased path not exists.
+     */
+    'if_url_a_is_empty' => '/',
 ];

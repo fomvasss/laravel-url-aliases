@@ -26,6 +26,8 @@ trait UrlAliasable
     
     public function scopeUrlA()
     {
-        return $this->urlAlias ? url($this->urlAlias->aliased_path) : abort(404);
+        $urlAlias = $this->urlAlias ? $this->urlAlias->aliased_path : config('url-aliases.url_a_is_empty', '/');
+        
+        return url($urlAlias);
     }
 }

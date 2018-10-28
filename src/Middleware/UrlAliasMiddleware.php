@@ -7,6 +7,9 @@ use Illuminate\Http\Request;
 
 class UrlAliasMiddleware
 {
+
+    const ALIAS_REQUEST_URI_KEY = 'ALIAS_REQUEST_URI';
+
     /**
      * Handle an incoming request.
      *
@@ -17,38 +20,43 @@ class UrlAliasMiddleware
     public function handle($request, Closure $next)
     {
         if ($this->isAvailableMethod($request) && $this->isAvailableCheckPath($request)) {
-            $path = $request->path();
-            $urlModels = $this->getByPath($path);
 
-            // is system_path
+            $path = $request->path();
+
+            $urlModels = $this->getByPath($path);
+            
+            // If visited system_path
             if ($urlModel = $urlModels->where('system_path', $path)->first()) {
                 $redirectStatus = config('url-aliases.redirect_for_system_path', 301);
 
-                // redirect in alias
+                // Redirect to alias path
                 if (in_array($redirectStatus, ['301', '302'])) {
                     $params = count($request->all()) ? '?'.http_build_query($request->all()) : '';
+                    
                     return redirect(url($urlModel->aliased_path).$params, $redirectStatus);
                 }
 
-            // is aliased_path
+            // If visited aliased_path
             } elseif ($urlModel = $urlModels->where('aliased_path', $path)->first()) {
                 if ($redirect = $this->isTypeRedirect($urlModel)) {
                     return $redirect;
                 }
-
+                
                 $newRequest = $this->makeNewRequest($request, $urlModel);
+                
                 return $next($newRequest);
                 
-            // check if isset facet in current url and find aliased path without facet
+            // Check if isset facet in current url and find aliased path without facet
             } elseif ($customReturn = $this->customize($request, $next)) {
                 return $customReturn;
             }
         }
+        
         return $next($request);
     }
 
     /**
-     * Создание нового request'a
+     * Remake request
      * @param Request $request
      * @param $urlModel
      * @return Request
@@ -63,7 +71,7 @@ class UrlAliasMiddleware
             $request->attributes->all(),
             $request->cookies->all(),
             $request->files->all(),
-            $newRequest->server->all() + ['ALIAS_REQUEST_URI' => $request->path()],
+            $newRequest->server->all() + [static::ALIAS_REQUEST_URI_KEY => $request->path()],
 //            $request->server->all(),
             $request->getContent()
         );
@@ -105,6 +113,7 @@ class UrlAliasMiddleware
         if ($request->is(...config('url-aliases.ignore_paths', []))) {
             return false;
         }
+        
         return true;
     }
 
@@ -114,9 +123,10 @@ class UrlAliasMiddleware
      */
     protected function isAvailableMethod(Request $request)
     {
-        if (in_array($request->getMethod(), config('url-aliases.available_mathods', [])) || empty(config('url-aliases.available_mathods', []))) {
+        if (in_array($request->getMethod(), config('url-aliases.available_methods', [])) || empty(config('url-aliases.available_methods', []))) {
             return true;
         }
+        
         return false;
     }
 

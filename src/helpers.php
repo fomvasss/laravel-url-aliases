@@ -30,19 +30,18 @@ if (!function_exists('route_alias')) {
 }
 
 
-if (!function_exists('clear_url_path')) {
+if (!function_exists('url_alias_current')) {
     /**
-     * Clear URL-path.
+     * Get current url alias path or system path.
      *
      * @param string $str
      * @return array
      */
-    function clear_url_path(string $url): string
+    function url_alias_current($absolute = true): string
     {
-        $root = request()->root();
-        $path = str_replace($root, '', $url);
-
-        return trim($path, '\/');
+        $path = request()->server('ALIAS_REQUEST_URI', request()->path());
+        
+        return $absolute ? url($path) : $path;
     }
 }
 
