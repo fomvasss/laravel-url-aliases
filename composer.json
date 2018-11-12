@@ -30,7 +30,10 @@
         "laravel": {
             "providers": [
                 "Fomvasss\\UrlAliases\\ServiceProvider"
-            ]
+            ],
+            "aliases": {
+                "UrlAliasLocalization": "Fomvasss\\LaravelUrlAliases\\Facades\\UrlAliasLocalization"
+            }
         }
     }
 }

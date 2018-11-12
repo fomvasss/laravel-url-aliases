@@ -10,12 +10,20 @@ class UrlAlias extends Model
 
     protected $guarded = ['id'];
 
+    public function getLocaleAliasAttribute()
+    {
+        return $this->attributes['locale'] . '/' . $this->attributes['alias'];
+    }
+
+    public function getLocaleSourceAttribute()
+    {
+        return $this->attributes['locale'] . '/' . $this->attributes['source'];
+    }
+
     public function scopeByPath($query, $path)
     {
         return $query->where(function($q) use ($path) {
-            $q->where('aliased_path', $path)->where('system_path', '<>', null);
-        })->orWhere(function($q) use ($path) {
-            $q->where('system_path', $path)->where('aliased_path', '<>', null);
-        });
+                $q->where('source', $path)->orWhere('alias', $path);
+            });
     }
 }

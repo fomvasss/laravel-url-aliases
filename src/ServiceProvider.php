@@ -36,12 +36,17 @@ class ServiceProvider extends \Illuminate\Support\ServiceProvider
     public function register()
     {
         $this->mergeConfigFrom(__DIR__.'/../config/url-aliases.php', 'url-aliases');
+
+        $this->app->singleton(UrlAliasLocalization::class, function () {
+            return new UrlAliasLocalization($this->app);
+        });
     }
 
     protected function publishConfig()
     {
         $this->publishes([
-            __DIR__ . '/../config/url-aliases.php' => config_path('url-aliases.php')
+            __DIR__ . '/../config/url-aliases.php' => config_path('url-aliases.php'),
+            __DIR__ . '/../config/url-aliases-laravellocalization.php' => config_path('url-aliases-laravellocalization.php'),
         ], 'url-aliases-config');
     }
 

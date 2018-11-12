@@ -3,12 +3,15 @@
 namespace Fomvasss\UrlAliases\Middleware;
 
 use Closure;
+use Fomvasss\UrlAliases\UrlAliasLocalization;
 use Illuminate\Http\Request;
 
 class UrlAliasMiddleware
 {
 
     const ALIAS_REQUEST_URI_KEY = 'ALIAS_REQUEST_URI';
+    
+    protected $config;
 
     /**
      * Handle an incoming request.
@@ -19,29 +22,43 @@ class UrlAliasMiddleware
      */
     public function handle($request, Closure $next)
     {
+        $this->app = app();
+        $this->config = $this->app['config'];
+
         if ($this->isAvailableMethod($request) && $this->isAvailableCheckPath($request)) {
 
-            $path = $request->path();
+            if ($useLocalization = $this->config->get('url-aliases.use_localization')) {
+                $localization = $this->app->make(UrlAliasLocalization::class);
+                // TODO: remove $segment1 in params next function
+                $path = $localization->prepareLocalizePath($request->path(), $request->segment(1));
+                if ($path instanceof \Illuminate\Http\RedirectResponse) {
+                    return $path;
+                }
+            } else {
+                $path = $request->path();
+            }
 
             $urlModels = $this->getByPath($path);
-            
-            // If visited system_path
-            if ($urlModel = $urlModels->where('system_path', $path)->first()) {
-                $redirectStatus = config('url-aliases.redirect_for_system_path', 301);
+
+            // If visited source - system path
+            if ($urlModel = $urlModels->where('source', $path)->first()) {
+
+                $redirectStatus = $this->config->get('url-aliases.redirect_for_system_path', 301) == 301 ?:302;
 
                 // Redirect to alias path
-                if (in_array($redirectStatus, ['301', '302'])) {
-                    $params = count($request->all()) ? '?'.http_build_query($request->all()) : '';
-                    
-                    return redirect(url($urlModel->aliased_path).$params, $redirectStatus);
-                }
+                $params = count($request->all()) ? '?' . http_build_query($request->all()) : '';
 
-            // If visited aliased_path
-            } elseif ($urlModel = $urlModels->where('aliased_path', $path)->first()) {
+                return redirect(url($urlModel->localeAlias) . $params, $redirectStatus);
+
+            // If visited alias
+            } elseif ($urlModel = $urlModels->where('alias', $path)->where('locale', $this->app->getLocale())->first()) {
+
+                // Redirect to source
                 if ($redirect = $this->isTypeRedirect($urlModel)) {
                     return $redirect;
                 }
-                
+
+                // Make new request
                 $newRequest = $this->makeNewRequest($request, $urlModel);
                 
                 return $next($newRequest);
@@ -64,7 +81,7 @@ class UrlAliasMiddleware
     protected function makeNewRequest(Request $request, $urlModel, $getParams = [])
     {
         $newRequest = $request;
-        $newRequest->server->set('REQUEST_URI', $urlModel->system_path);
+        $newRequest->server->set('REQUEST_URI', $urlModel->source);
         $newRequest->initialize(
             $request->query->all(),
             $request->request->all(),
@@ -98,7 +115,7 @@ class UrlAliasMiddleware
     protected function isTypeRedirect($urlModel)
     {
         if (in_array($urlModel->type, [301, 302])) {
-            return redirect(url($urlModel->system_path), $urlModel->type);
+            return redirect(url($urlModel->localeSource), $urlModel->type);
         }
 
         return false;
@@ -110,7 +127,7 @@ class UrlAliasMiddleware
      */
     protected function isAvailableCheckPath(Request $request)
     {
-        if ($request->is(...config('url-aliases.ignore_paths', []))) {
+        if ($request->is(...$this->config->get('url-aliases.ignore_paths', []))) {
             return false;
         }
         
@@ -123,7 +140,7 @@ class UrlAliasMiddleware
      */
     protected function isAvailableMethod(Request $request)
     {
-        if (in_array($request->getMethod(), config('url-aliases.available_methods', [])) || empty(config('url-aliases.available_methods', []))) {
+        if (in_array($request->getMethod(), $this->config->get('url-aliases.available_methods', [])) || empty($this->config->get('url-aliases.available_methods', []))) {
             return true;
         }
         
@@ -136,7 +153,7 @@ class UrlAliasMiddleware
      */
     protected function getByPath($path)
     {
-        $model = config('url-aliases.model', \Fomvasss\UrlAliases\Models\UrlAlias::class);
+        $model = $this->config->get('url-aliases.model', \Fomvasss\UrlAliases\Models\UrlAlias::class);
         
         return $model::byPath($path)->get();
     }

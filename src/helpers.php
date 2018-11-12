@@ -10,17 +10,25 @@ if (!function_exists('route_alias')) {
      * @param bool $absolute
      * @return string
      */
-    function route_alias(string $systemName, $parameters = [], $absolute = true): string
+    function route_alias(string $systemName, $parameters = [], $absolute = true, $forceWithLocalePreffix = false): string
     {
         $parameters = array_wrap($parameters);
 
         if (! empty($parameters[0]) && ($parameters[0] instanceof \Illuminate\Database\Eloquent\Model)) {
             $entity = $parameters[0];
-            if ($alias = optional($entity->urlAlias)->aliased_path) {
+            if ($entity->urlAlias) {
                 unset($parameters[0]);
-                if (count($parameters)) {
-                    $alias = $alias . '?' . http_build_query($parameters);
+
+                if (! $forceWithLocalePreffix && config('app.locale') == $entity->urlAlias->locale && config('url-aliases-laravellocalization.hideDefaultLocaleInURL')) {
+                    $alias = $entity->urlAlias->alias;
+                } else {
+                    $alias = $entity->urlAlias->localeAlias;
                 }
+
+                if (count($parameters)) {
+                    $alias .= '?' . http_build_query($parameters);
+                }
+
                 return $absolute ? url($alias) : $alias;
             }
         }

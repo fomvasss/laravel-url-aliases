@@ -13,16 +13,16 @@ class UrlAliasesTableSeeder extends Seeder
     {
         \DB::table('users')->insert([
             [
-                'system_path' => 'system/article/1',
-                'aliased_path' => 'example-category/example-article',
+                'source' => 'system/article/1',
+                'alias' => 'example-category/example-article',
             ],
             [
-                'system_path' => 'system/article/2',
-                'aliased_path' => 'example-category/example-article2',
+                'source' => 'system/article/2',
+                'alias' => 'example-category/example-article2',
             ],
             [
-                'system_path' => 'https://www.google.com',
-                'aliased_path' => 'search',
+                'source' => 'https://www.google.com',
+                'alias' => 'search',
                 'type' => '301',
             ],
         ]);
