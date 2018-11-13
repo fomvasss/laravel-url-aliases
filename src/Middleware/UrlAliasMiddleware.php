@@ -29,6 +29,7 @@ class UrlAliasMiddleware
 
             if ($useLocalization = $this->config->get('url-aliases.use_localization')) {
                 $localization = $this->app->make(UrlAliasLocalization::class);
+
                 // TODO: remove $segment1 in params next function
                 $path = $localization->prepareLocalizePath($request->path(), $request->segment(1));
                 if ($path instanceof \Illuminate\Http\RedirectResponse) {

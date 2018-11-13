@@ -26,6 +26,9 @@ trait Localization
      */
     public function getDefaultLocale()
     {
+        if (isset($this->defaultLocale)) {
+            return $this->defaultLocale;
+        }
         return $this->config->get('app.locale');
     }
 

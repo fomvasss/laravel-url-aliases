@@ -32,7 +32,7 @@
                 "Fomvasss\\UrlAliases\\ServiceProvider"
             ],
             "aliases": {
-                "UrlAliasLocalization": "Fomvasss\\LaravelUrlAliases\\Facades\\UrlAliasLocalization"
+                "UrlAliasLocalization": "Fomvasss\\UrlAliases\\Facades\\UrlAliasLocalization"
             }
         }
     }

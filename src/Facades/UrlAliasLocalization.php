@@ -1,6 +1,6 @@
 <?php
 
-namespace Fomvasss\LaravelStrTokens\Facades;
+namespace Fomvasss\UrlAliases\Facades;
 
 use Illuminate\Support\Facades\Facade;
 
