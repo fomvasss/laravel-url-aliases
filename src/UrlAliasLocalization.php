@@ -51,6 +51,7 @@ class UrlAliasLocalization
     public function prepareLocalizePath($path, $segment1)
     {
 //        session()->put('locale', $this->defaultLocale);
+        $segment1 = url_path_segments($path, 1);
 
         if (key_exists($segment1, $this->supportedLocales)) {
 //            session()->put('locale', $segment1);

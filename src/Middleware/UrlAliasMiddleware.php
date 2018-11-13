@@ -10,9 +10,14 @@ class UrlAliasMiddleware
 {
 
     const ALIAS_REQUEST_URI_KEY = 'ALIAS_REQUEST_URI';
-    
+    /**
+     * @var
+     */
     protected $config;
 
+    /**
+     * @var bool
+     */
     protected $useLocalization = false;
 
     /**

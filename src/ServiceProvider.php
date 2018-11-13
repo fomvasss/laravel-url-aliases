@@ -36,6 +36,7 @@ class ServiceProvider extends \Illuminate\Support\ServiceProvider
     public function register()
     {
         $this->mergeConfigFrom(__DIR__.'/../config/url-aliases.php', 'url-aliases');
+        $this->mergeConfigFrom(__DIR__.'/../config/url-aliases-laravellocalization.php', 'url-aliases-laravellocalization');
 
         $this->app->singleton(UrlAliasLocalization::class, function () {
             return new UrlAliasLocalization($this->app);
