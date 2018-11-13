@@ -1,5 +1,9 @@
 # Changelog Laravel URL-aliases
 
+## 2.0.0 - 2018-11-15
+
+- Added support Localization aliases
+
 ## 1.0.0 - 2018-10-28
 
 - Firs release

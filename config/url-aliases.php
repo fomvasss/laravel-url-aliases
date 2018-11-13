@@ -8,7 +8,7 @@ return [
      */
     'model' => \Fomvasss\UrlAliases\Models\UrlAlias::class,
 
-    'use_localization' => true,
+    'use_localization' => false,
 
     /* -----------------------------------------------------------------
      |  If visit systep path.

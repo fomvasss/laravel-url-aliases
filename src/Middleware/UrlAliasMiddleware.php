@@ -13,6 +13,8 @@ class UrlAliasMiddleware
     
     protected $config;
 
+    protected $useLocalization = false;
+
     /**
      * Handle an incoming request.
      *
@@ -27,7 +29,7 @@ class UrlAliasMiddleware
 
         if ($this->isAvailableMethod($request) && $this->isAvailableCheckPath($request)) {
 
-            if ($useLocalization = $this->config->get('url-aliases.use_localization')) {
+            if ($this->useLocalization = $this->config->get('url-aliases.use_localization')) {
                 $localization = $this->app->make(UrlAliasLocalization::class);
 
                 // TODO: remove $segment1 in params next function
@@ -49,9 +51,12 @@ class UrlAliasMiddleware
                 // Redirect to alias path
                 $params = count($request->all()) ? '?' . http_build_query($request->all()) : '';
 
-                return redirect(url($urlModel->localeAlias) . $params, $redirectStatus);
+                if ($this->useLocalization) {
+                    return redirect()->to(url($urlModel->localeAlias) . $params, $redirectStatus);
+                }
+                return redirect()->to(url($urlModel->alias) . $params, $redirectStatus);
 
-            // If visited alias
+                // If visited alias
             } elseif ($urlModel = $urlModels->where('alias', $path)->where('locale', $this->app->getLocale())->first()) {
 
                 // Redirect to source
@@ -116,7 +121,11 @@ class UrlAliasMiddleware
     protected function isTypeRedirect($urlModel)
     {
         if (in_array($urlModel->type, [301, 302])) {
-            return redirect(url($urlModel->localeSource), $urlModel->type);
+            if ($this->useLocalization) {
+                return redirect(url($urlModel->localeSource), $urlModel->type);
+            }
+
+            return redirect()->to(url($urlModel->source), $urlModel->type);
         }
 
         return false;
