@@ -48,7 +48,7 @@ class UrlAliasLocalization
      * @param $segment1
      * @return \Illuminate\Http\RedirectResponse|string
      */
-    public function prepareLocalizePath($path, $segment1)
+    public function prepareLocalizePath(string $path): array
     {
 //        session()->put('locale', $this->defaultLocale);
         $segment1 = url_path_segments($path, 1);
@@ -56,11 +56,13 @@ class UrlAliasLocalization
         if (key_exists($segment1, $this->supportedLocales)) {
 //            session()->put('locale', $segment1);
 
-            $path = ltrim($path, $segment1 . '/');
+            $path = preg_replace("/^$segment1\\//", "", "$path");
 
             if ($this->hideDefaultLocaleInURL() && $segment1 === $this->defaultLocale) {
-                return redirect()->to($path);
+                $path = ($path == $segment1) ? '/' : $path;
+                return ['redirect' => $path];
             }
+
             $this->currentLocale = $segment1;
             $this->app->setLocale($segment1);
         }
@@ -73,7 +75,7 @@ class UrlAliasLocalization
             setlocale(LC_MONETARY, $regional . $suffix);
         }
 
-        return $path;
+        return ['path' => $path];
     }
 
     /**

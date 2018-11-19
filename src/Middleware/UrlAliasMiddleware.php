@@ -10,6 +10,7 @@ class UrlAliasMiddleware
 {
 
     const ALIAS_REQUEST_URI_KEY = 'ALIAS_REQUEST_URI';
+
     /**
      * @var
      */
@@ -34,32 +35,37 @@ class UrlAliasMiddleware
 
         if ($this->isAvailableMethod($request) && $this->isAvailableCheckPath($request)) {
 
-            if ($this->useLocalization = $this->config->get('url-aliases.use_localization')) {
+            $path = $request->path();
+
+            // Check lovalization support
+            if ($this->useLocalization = $this->config->get('url-aliases.use_localization') && $this->isAvailableLocalizationPath($request)) {
                 $localization = $this->app->make(UrlAliasLocalization::class);
 
-                // TODO: remove $segment1 in params next function
-                $path = $localization->prepareLocalizePath($request->path(), $request->segment(1));
-                if ($path instanceof \Illuminate\Http\RedirectResponse) {
-                    return $path;
+                $localizationResult = $localization->prepareLocalizePath($request->path());
+
+                if (isset($localizationResult['redirect'])) {
+                    $params = count($request->all()) ? '?' . http_build_query($request->all()) : '';
+                    return redirect()->to($localizationResult['redirect'] . $params, 301); // hide default locale in URL
+                } elseif (isset($localizationResult['path'])) {
+                    $path = $localizationResult['path'];
                 }
-            } else {
-                $path = $request->path();
             }
 
             $urlModels = $this->getByPath($path);
 
             // If visited source - system path
-            if ($urlModel = $urlModels->where('source', $path)->first()) {
+            if ($urlModel = $urlModels->where('source', $path)->where('locale', $this->app->getLocale())->first()/* && $path != 'de'*/) {
 
-                $redirectStatus = $this->config->get('url-aliases.redirect_for_system_path', 301) == 301 ?:302;
+                $redirectStatus = $this->config->get('url-aliases.redirect_for_system_path', 301) == 301 ? 301 : 302;
 
                 // Redirect to alias path
                 $params = count($request->all()) ? '?' . http_build_query($request->all()) : '';
 
                 if ($this->useLocalization) {
-                    return redirect()->to(url($urlModel->localeAlias) . $params, $redirectStatus);
+                    return redirect()->to(url($urlModel->localeAlias) . '/' . $params, $redirectStatus);
                 }
-                return redirect()->to(url($urlModel->alias) . $params, $redirectStatus);
+
+                return redirect()->to(url($urlModel->alias) . '/' . $params, $redirectStatus);
 
                 // If visited alias
             } elseif ($urlModel = $urlModels->where('alias', $path)->where('locale', $this->app->getLocale())->first()) {
@@ -76,6 +82,7 @@ class UrlAliasMiddleware
                 
             // Check if isset facet in current url and find aliased path without facet
             } elseif ($customReturn = $this->customize($request, $next)) {
+
                 return $customReturn;
             }
         }
@@ -100,13 +107,11 @@ class UrlAliasMiddleware
             $request->cookies->all(),
             $request->files->all(),
             $newRequest->server->all() + [static::ALIAS_REQUEST_URI_KEY => $request->path()],
-//            $request->server->all(),
             $request->getContent()
         );
 
 //          $request = \Request::create($systemPath, 'GET');
 //          return $response = \Route::dispatch($request);
-
         $newRequest->merge($getParams);
 
         return $newRequest;
@@ -146,6 +151,15 @@ class UrlAliasMiddleware
             return false;
         }
         
+        return true;
+    }
+
+    protected function isAvailableLocalizationPath(Request $request)
+    {
+        if ($request->is(...$this->config->get('url-aliases-laravellocalization.urlsIgnored', []))) {
+            return false;
+        }
+
         return true;
     }
 

@@ -2,12 +2,12 @@
 
 if (!function_exists('route_alias')) {
     /**
-     *
      * Get URL-path (alias/system path) for entity.
-     * 
+     *
      * @param string $systemName
-     * @param array $parameters [\Illuminate\Database\Eloquent\Model]
+     * @param array $parameters
      * @param bool $absolute
+     * @param bool $forceWithLocalePreffix
      * @return string
      */
     function route_alias(string $systemName, $parameters = [], $absolute = true, $forceWithLocalePreffix = false): string
@@ -50,6 +50,21 @@ if (!function_exists('url_alias_current')) {
         $path = request()->server('ALIAS_REQUEST_URI', request()->path());
         
         return $absolute ? url($path) : $path;
+    }
+}
+
+if (!function_exists('array_wrap')) {
+    /**
+     * @param $value
+     * @return array
+     */
+    function array_wrap($value)
+    {
+        if (is_null($value)) {
+            return [];
+        }
+
+        return ! is_array($value) ? [$value] : $value;
     }
 }
 
