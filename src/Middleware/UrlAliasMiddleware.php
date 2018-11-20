@@ -147,7 +147,7 @@ class UrlAliasMiddleware
      */
     protected function isAvailableCheckPath(Request $request)
     {
-        if ($request->is(...$this->config->get('url-aliases.ignore_paths', []))) {
+        if ($request->is(...$this->config->get('url-aliases.ignored_paths', []))) {
             return false;
         }
         

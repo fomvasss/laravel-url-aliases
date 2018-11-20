@@ -13,11 +13,6 @@ Require this package with composer
 composer require fomvasss/laravel-url-aliases
 ```
 
-If you don't use auto-discovery (Laravel < 5.5), add the ServiceProvider to the providers array in config/app.php
-```php
-Fomvasss\UrlAliases\ServiceProvider::class,
-```
-
 Publish package resource:
 ```shell
 php artisan vendor:publish --provider="Fomvasss\UrlAliases\ServiceProvider"
@@ -40,6 +35,7 @@ Add to your model trait: `Fomvasss\UrlAliases\Traits\UrlAliasable`
 This trait have the next relation-method:
 -  `urlAlias()` //return model UrlAlias
 -  `urlAliases()` //return models UrlAliases
+
 and Scope for your model:
 - `urlA()`      // return string url (alias - first!)
 
@@ -57,6 +53,7 @@ Add the middleware to `Http/Kernel.php`:
 
 - `route_alias()` - works the same way as Laravel helper `route()`
 - `url_alias_current()` - return alias path (or system path if alias not exists)
+- `prepare_url_path()` - return path for URL: https://your-site.com/my-first-page/example/ -> my-first-page/example 
 
 ### Blade directive
 
@@ -64,14 +61,14 @@ Add the middleware to `Http/Kernel.php`:
 
 ### Example:
 
-
 - `routes/web.php`:
 
 ```php
 Route::group(['prefix' => 'system', 'as' => 'system'], function () {
-Route::get('article', 'ArticleController@index')->name('article.index');
-Route::get('article/{id}', 'ArticleController@show')->name('article.show');
-Route::post('article', 'ArticleController@store')->name('article.store');
+    //...
+    Route::get('article', 'ArticleController@index')->name('article.index');
+    Route::get('article/{id}', 'ArticleController@show')->name('article.show');
+    Route::post('article', 'ArticleController@store')->name('article.store');
 });
 ```
 
@@ -94,9 +91,17 @@ public function store(Request $request)
     ]);
     
     $article->urlAlias()->create([
-        'system_path' => trim(route('system.article.show', $article, false), '/'),
-        'aliased_path' => str_slug($article->title).'/'.str_slug($article->user->name), // must be unique!
+        'source' => trim(route('system.article.show', $article, false), '/'),      // Ex.: system/article/26
+        'alias' => str_slug($article->title).'/'.str_slug($article->user->name), // must be unique! Ex.: my-first-article/taylor-otwell
     ]);
+    
+    // Or if external link:
+    $article->urlAlias()->create([
+        'source' => 'https://google.com.ua',
+        'alias' => 'my-google'
+        'type' => 301,          // type redirect!
+    ]);
+
 
     return redirect()->route('system.article.index');
 }
@@ -119,9 +124,53 @@ public function show(Request $request, $id)
 <li><a href="{{ route_alias('system.article.show', [$article, 'page' => '3', 'per_page' => 15]) }}">Alias Link - absolute path</a></li>
 <li><a href="{{ route_alias('system.article.show', $article, false) }}">Alias Link - relative path</a></li>
 <li><a href="{{ route_alias('system.article.show', ['page' => '3', 'per_page' => 15]) }}">System Link - if not exist alias</a></li>
-<li><a href="{{ request()->path() }}">System Link</a></li>
+<li><a href="{{ request()->path() }}">System Link - redirect to alias (if exists)</a></li>
 <h2><a href="{{ url_alias_current() }}">Current path (alias or system)</a></h2>
 <li><a href="@urlAliasCurrent()">Url current url alias or system path</a></li>
 ```
 
 !!! In `route_alias()` second argument (array first index) must by instanceof \Illuminate\Database\Eloquent\Model
+
+## Use localization URL's
+
+For use localization url's, you need do next steps:
+1) Add to `Http/Kernel.php` next middleware:
+```php
+    protected $routeMiddleware = [
+        //...
+        'applyUrlLocaleToRootPage' => \Fomvasss\UrlAliases\Middleware\ApplyUrlLocaleToRootPage::class,
+    ];
+```
+2) Set in `config/url-aliases.php`: 'use_localization' => true,
+3) Uncomment needed locales in `config/url-aliases-laravellocalization.php` and set other params
+4) Make or change your home page (root) routes, for example:
+```php
+Route::get('/{locale?}', function () {
+    return view('home');
+})->name('home')->middleware('applyUrlLocaleToRootPage');
+```
+5) Save aliases for entity and set locale:
+```php
+    $article->urlAlias()->create([
+        'source' => trim(route('system.article.show', $article, false), '/'),      // Ex.: system/article/26
+        'alias' => str_slug($article->title).'/'.str_slug($article->user->name), // must be unique! Ex.: my-first-article/taylor-otwell
+        'locale' => 'en',
+    ]);
+```
+6) Use facade `UrlAliasLocalization` and next methods (like in [mcamara/laravel-localization](https://github.com/mcamara/laravel-localization)):
+```php
+    UrlAliasLocalization::getDefaultLocale()
+    UrlAliasLocalization::getCurrentLocale()
+    UrlAliasLocalization::getCurrentLocaleName()
+    UrlAliasLocalization::getCurrentLocaleName()
+    UrlAliasLocalization::getCurrentLocaleNative()
+    UrlAliasLocalization::getCurrentLocaleNativeReading()
+    UrlAliasLocalization::getCurrentLocaleRegional()
+    UrlAliasLocalization::getCurrentLocaleScript()
+    UrlAliasLocalization::getLocalesOrder()
+    UrlAliasLocalization::getSupportedLocales()
+```
+
+## Links
+
+* [https://github.com/mcamara/laravel-localization](https://github.com/mcamara/laravel-localization)
