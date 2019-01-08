@@ -55,4 +55,28 @@ class UrlAlias extends Model
                 $q->where('source', $path)->orWhere('alias', $path);
             });
     }
+
+    /**
+     * @param $value
+     */
+    public function setAliasAttribute($value)
+    {
+        $this->attributes['alias'] = trim($value, '/');
+    }
+
+    /**
+     * @param $value
+     */
+    public function setSourceAttribute($value)
+    {
+        $this->attributes['source'] = trim($value, '/');
+    }
+
+    /**
+     * @return \Illuminate\Database\Eloquent\Relations\MorphTo
+     */
+    public function aliasable()
+    {
+        return $this->morphTo('aliasable', 'model_type', 'model_id');
+    }
 }
