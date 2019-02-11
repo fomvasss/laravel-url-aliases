@@ -8,6 +8,8 @@
 
 ## Installation
 
+__Branch 1.0.* is DEPRECATED!!! Use 2.*__
+
 Require this package with composer
 ```shell
 composer require fomvasss/laravel-url-aliases
