@@ -15,13 +15,17 @@ class CreateUrlAliasesTable extends Migration
     {
         Schema::create('url_aliases', function (Blueprint $table) {
             $table->increments('id');
-            $table->string('system_path')->nullable();          // system/article/1
-            $table->string('aliased_path')->unique();           // article/some-slug-article
-            $table->string('type', 25)->nullable();      // null (is alias) | 301 | 302
+            $table->string('source')->index();
+            $table->string('alias')->unique();
+            $table->string('locale')->nullable();
+
+            $table->string('type', 5)->nullable(); // null - is alias | 301 | 302
             $table->string('model_type')->nullable();
             $table->integer('model_id')->nullable();
-
-            $table->index(['model_type', 'model_id']);
+            
+            $table->index(['source', 'locale']);
+            $table->unique(['alias', 'locale']);
+            $table->unique(['model_type', 'model_id']);
         });
     }
 

@@ -11,20 +11,43 @@ class UrlAliasesTableSeeder extends Seeder
      */
     public function run()
     {
-        \DB::table('users')->insert([
+        $aliases = [
             [
-                'system_path' => 'system/article/1',
-                'aliased_path' => 'example-category/example-article',
+                'source' => 'system/page/1',
+                'alias' => 'about',
+                'locale' => 'de'
             ],
             [
-                'system_path' => 'system/article/2',
-                'aliased_path' => 'example-category/example-article2',
+                'source' => 'system/page/2',
+                'alias' => 'about',
+                'locale' => 'en'
             ],
             [
-                'system_path' => 'https://www.google.com',
-                'aliased_path' => 'search',
+                'source' => 'system/article/1',
+                'alias' => 'nature/animals/elephants',
+            ],
+            [
+                'source' => 'system/article/2',
+                'alias' => 'nature/forest/grobere-walder',
+                'locale' => 'de',
+            ],
+            [
+                'source' => 'system/article/3',
+                'alias' => 'nature/forest/bigger-woods',
+                'locale' => 'en',
+            ],
+            [
+                'source' => 'https://www.google.com',
+                'alias' => 'my-favority-search',
                 'type' => '301',
             ],
-        ]);
+        ];
+
+        foreach ($aliases as $i => $data) {
+            // Use aliases model
+            $alias = Fomvasss\UrlAliases\Models\UrlAlias::updateOrCreate($data);
+
+            $this->command->info(($i+1).". Saved -> $alias->source | $alias->alias | $alias->locale | $alias->type");
+        }
     }
 }

@@ -23,9 +23,6 @@ class ServiceProvider extends \Illuminate\Support\ServiceProvider
         $this->publishSeeder();
         
 //        $this->registerMiddleware(UrlAliasMiddleware::class);
-
-        $this->makeBladeDirective();
-        
     }
 
     /**
@@ -36,12 +33,22 @@ class ServiceProvider extends \Illuminate\Support\ServiceProvider
     public function register()
     {
         $this->mergeConfigFrom(__DIR__.'/../config/url-aliases.php', 'url-aliases');
+        $this->mergeConfigFrom(__DIR__.'/../config/url-aliases-laravellocalization.php', 'url-aliases-laravellocalization');
+
+        $this->app->singleton(UrlAliasLocalization::class, function () {
+            return new UrlAliasLocalization($this->app);
+        });
+
+        $this->app->singleton(UrlAlias::class, function () {
+            return new UrlAlias($this->app);
+        });
     }
 
     protected function publishConfig()
     {
         $this->publishes([
-            __DIR__ . '/../config/url-aliases.php' => config_path('url-aliases.php')
+            __DIR__ . '/../config/url-aliases.php' => config_path('url-aliases.php'),
+            __DIR__ . '/../config/url-aliases-laravellocalization.php' => config_path('url-aliases-laravellocalization.php'),
         ], 'url-aliases-config');
     }
 
@@ -68,25 +75,6 @@ class ServiceProvider extends \Illuminate\Support\ServiceProvider
     {
         $kernel = $this->app[Kernel::class];
         $kernel->pushMiddleware($middleware);
-    }
-
-    /**
-     * Make blade directive "@urlAliasCurrent()"
-     */
-    protected function makeBladeDirective()
-    {
-        \Blade::directive('urlAliasCurrent', function ($expression) {
-
-            list($absolute) = explode(', ', $expression);
-
-            $path = request()->server('ALIAS_REQUEST_URI', request()->path());
-
-            if (($absolute || $absolute === '') && $absolute != 'false') {
-                $path = url($path);
-            }
-
-            return "<?php echo('{$path}'); ?>";
-        });
     }
 
     protected function checkMakeDir(string $path)

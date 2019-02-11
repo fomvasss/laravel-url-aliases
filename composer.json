@@ -15,8 +15,8 @@
     "license": "MIT",
     "require": {
         "php" : ">=7.0.0",
-        "illuminate/support": "5.6.*|5.7.*",
-        "illuminate/database": "5.6.*|5.7.*"
+        "illuminate/support": "5.6.*|5.7.*|5.8.*",
+        "illuminate/database": "5.6.*|5.7.*|5.8.*"
     },
     "autoload": {
         "psr-4": {
@@ -30,7 +30,11 @@
         "laravel": {
             "providers": [
                 "Fomvasss\\UrlAliases\\ServiceProvider"
-            ]
+            ],
+            "aliases": {
+                "UrlAliasLocalization": "Fomvasss\\UrlAliases\\Facades\\UrlAliasLocalization",
+                "UrlAlias": "Fomvasss\\UrlAliases\\Facades\\UrlAlias"
+            }
         }
     }
 }

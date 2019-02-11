@@ -2,32 +2,43 @@
 
 return [
 
-    /*
-     * Default url-alias model
+    /* -----------------------------------------------------------------
+     |  The default Model class.
+     | -----------------------------------------------------------------
      */
     'model' => \Fomvasss\UrlAliases\Models\UrlAlias::class,
 
-    /*
-     * If visit systep path.
-     * [301|302|false]
+    /* -----------------------------------------------------------------
+     |  Support localized aliases and redirects.
+     | -----------------------------------------------------------------
+     */
+    'use_localization' => false,
+
+    /* -----------------------------------------------------------------
+     |  If visit systep path.
+     |  301|302|false
+     | -----------------------------------------------------------------
      */
     'redirect_for_system_path' => 301,
 
-    /*
-     * If empty - available all methods.
+    /* -----------------------------------------------------------------
+     | If empty - available all methods.
+     | -----------------------------------------------------------------
      */
     'available_methods' => ['GET'],
 
-    /*
-     * Do not apply aliases for paths.
+    /* -----------------------------------------------------------------
+     | Do not apply aliases for paths.
+     | -----------------------------------------------------------------
      */
-    'ignore_paths' => [
+    'ignored_paths' => [
         'admin/*',
         '*download*',
     ],
-    
-    /*
-     * For scope UrlA() - if aliased path not exists.
+
+    /* -----------------------------------------------------------------
+     | For scope UrlA() - if aliased path not exists.
+     | -----------------------------------------------------------------
      */
     'if_url_a_is_empty' => '/',
 ];
