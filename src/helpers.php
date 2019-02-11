@@ -12,28 +12,7 @@ if (!function_exists('route_alias')) {
      */
     function route_alias(string $systemName, $parameters = [], $absolute = true, $forceWithLocalePreffix = false): string
     {
-        $parameters = array_wrap($parameters);
-
-        if (! empty($parameters[0]) && ($parameters[0] instanceof \Illuminate\Database\Eloquent\Model)) {
-            $entity = $parameters[0];
-            if ($entity->urlAlias) {
-                unset($parameters[0]);
-
-                if (! $forceWithLocalePreffix && config('app.locale') == $entity->urlAlias->locale && config('url-aliases-laravellocalization.hideDefaultLocaleInURL')) {
-                    $alias = $entity->urlAlias->alias;
-                } else {
-                    $alias = $entity->urlAlias->localeAlias;
-                }
-
-                if (count($parameters)) {
-                    $alias .= '?' . http_build_query($parameters);
-                }
-
-                return $absolute ? url($alias) : $alias;
-            }
-        }
-
-        return route($systemName, $parameters, $absolute);
+        return app()->make(\Fomvasss\UrlAliases\UrlAlias::class)->route($systemName, $parameters, $absolute, $forceWithLocalePreffix);
     }
 }
 
@@ -47,9 +26,7 @@ if (!function_exists('url_alias_current')) {
      */
     function url_alias_current($absolute = true): string
     {
-        $path = request()->server('ALIAS_REQUEST_URI', request()->path());
-        
-        return $absolute ? url($path) : $path;
+        return app()->make(\Fomvasss\UrlAliases\UrlAlias::class)->current($absolute);
     }
 }
 

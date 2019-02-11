@@ -8,12 +8,12 @@
 
 ## Installation
 
-Require this package with composer
+1) Require this package with composer
 ```shell
 composer require fomvasss/laravel-url-aliases
 ```
 
-Publish package resource:
+2) Publish package resource:
 ```shell
 php artisan vendor:publish --provider="Fomvasss\UrlAliases\ServiceProvider"
 ```
@@ -21,27 +21,22 @@ php artisan vendor:publish --provider="Fomvasss\UrlAliases\ServiceProvider"
 - migration
 - test seeder
 
-Run migrate:
+3) Run migrate:
 ```shell
 php artisan migrate
 ```
 
-## Usage
+## Integration
 
-### Model
+1) Add to your model next trait: `Fomvasss\UrlAliases\Traits\UrlAliasable` 
 
-Add to your model trait: `Fomvasss\UrlAliases\Traits\UrlAliasable` 
+This trait have next relation-method:
+-  `urlAlias()`		//return model UrlAlias
+-  `urlAliases()`	//return models UrlAliases (rarely used!)
 
-This trait have the next relation-method:
--  `urlAlias()` //return model UrlAlias
--  `urlAliases()` //return models UrlAliases
+>Do not forget use `with('urlAlias')` in your models when you get list!
 
-and Scope for your model:
-- `urlA()`      // return string url (alias - first!)
-
-__Do not forget use `with('urlAlias')` in your models!__
-
-Add the middleware to `Http/Kernel.php`:
+2) Add the middleware to `Http/Kernel.php`:
 ```php
     protected $middleware = [
         //...
@@ -49,49 +44,52 @@ Add the middleware to `Http/Kernel.php`:
     ];
 ```
 
-### Helper functions
+## Usage
 
+### Facade
+- `\Fomvasss\UrlAliases\Facades\UrlAlias::route('article.show', $article)`
+- `\Fomvasss\UrlAliases\Facades\UrlAlias::current()`
+
+### Helper functions
 - `route_alias()` - works the same way as Laravel helper `route()`
 - `url_alias_current()` - return alias path (or system path if alias not exists)
 - `prepare_url_path()` - return path for URL: https://your-site.com/my-first-page/example/ -> my-first-page/example 
 
-### Blade directive
-
-- @urlAliasCurrent()
-
-### Example:
+### Examples usage
 
 - `routes/web.php`:
-
 ```php
-Route::group(['prefix' => 'system', 'as' => 'system'], function () {
+Route::group(['namespace' => 'Front'], function () {
     //...
     Route::get('article', 'ArticleController@index')->name('article.index');
     Route::get('article/{id}', 'ArticleController@show')->name('article.show');
     Route::post('article', 'ArticleController@store')->name('article.store');
+	//...
 });
 ```
 
-- `app/Http/Controllers/ArticleController.php`:
-
+- `app/Http/Controllers/Front/ArticleController.php`:
 ```php
 
 public function index(Request $request)
 {
-    $articles = Models\Article::paginate($request->per_page);
+    $articles = \App\Models\Article::paginate($request->per_page);
+    
+    // foreach($articles as $article) {
+    //	 dump(route_alias('article.show', $article));
+    // }
     
     return view('article.index', compact('articles'));
 }
 
-
 public function store(Request $request)
 {
-    $article = Models\Article::create($request->only([
+    $article = \App\Models\Article::create($request->only([
         //...
     ]);
     
     $article->urlAlias()->create([
-        'source' => trim(route('system.article.show', $article, false), '/'),      // Ex.: system/article/26
+        'source' => trim(route('article.show', $article, false), '/'),      // Ex.: system/article/26
         'alias' => str_slug($article->title).'/'.str_slug($article->user->name), // must be unique! Ex.: my-first-article/taylor-otwell
     ]);
     
@@ -102,36 +100,37 @@ public function store(Request $request)
         'type' => 301,          // type redirect!
     ]);
 
-
-    return redirect()->route('system.article.index');
+    return redirect()->route('article.index');
 }
 
 public function show(Request $request, $id)
 {
-    $article = Models\Article::findOrFail($id);
+    $article = \App\Models\Article::findOrFail($id);
 
-    // $article->urlAlias;
-    // $article->urlA();
+    // dump($article->urlAlias);
+    // dump($article->urlA());
    
     return view('article.show', compact('article'));
 }
 ```
 
 ```blade
-<li><a href="{{ route_alias('system.article.index', ['page' => '3', 'per_page' => 15]) }}">All articles</a></li>
-<li><a href="{{ route('system.article.show', $article->id) }}">System Link - 301 redirect to alias (if exists)</a></li>
-<li><a href="{{ url($article->urlA()) }}">Alias Link - if not exists - return setted in config 'url-aliases.if_urlA_is_empty'</a></li>
-<li><a href="{{ route_alias('system.article.show', [$article, 'page' => '3', 'per_page' => 15]) }}">Alias Link - absolute path</a></li>
-<li><a href="{{ route_alias('system.article.show', $article, false) }}">Alias Link - relative path</a></li>
-<li><a href="{{ route_alias('system.article.show', ['page' => '3', 'per_page' => 15]) }}">System Link - if not exist alias</a></li>
+<li><a href="{{ route_alias('article.index', ['page' => '3', 'per_page' => 15]) }}">All articles</a></li>
+<li><a href="{{ route('article.show', $article->id) }}">System Link - 301 redirect to alias (if exists)</a></li>
+<li><a href="{{ route_alias('article.show', [$article, 'page' => '3', 'per_page' => 15]) }}">Alias Link to article - absolute path</a></li>
+<li><a href="{{ route_alias('article.show', $article, false) }}">Alias Link to article - relative path</a></li>
+<li><a href="{{ route_alias('article.show', ['page' => '3', 'per_page' => 15]) }}">System Link - if not exist alias</a></li>
 <li><a href="{{ request()->path() }}">System Link - redirect to alias (if exists)</a></li>
-<h2><a href="{{ url_alias_current() }}">Current path (alias or system)</a></h2>
-<li><a href="@urlAliasCurrent()">Url current url alias or system path</a></li>
+<li><a href="{{ url_alias_current() }}">Current path (alias or system)</a></li>
+<li><a href="{{ \Fomvasss\UrlAliases\Facades\UrlAlias::route('article.show', $article) }}">Alias Link to article - absolute path</a></li>
+<li><a href="{{ \Fomvasss\UrlAliases\Facades\UrlAlias::current() }}">Current path (alias or system)</a></li>
 ```
 
-!!! In `route_alias()` second argument (array first index) must by instanceof \Illuminate\Database\Eloquent\Model
+>In `route_alias()` && `UrlAlias::current()` second argument (if array - first index) may be `id` or the instanceof `\Illuminate\Database\Eloquent\Model` (like `route` Laravel helper)
 
-## Use localization URL's
+___
+
+## Use localization URL's (dev)
 
 For use localization url's, you need do next steps:
 1) Add to `Http/Kernel.php` next middleware:

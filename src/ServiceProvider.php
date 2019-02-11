@@ -23,9 +23,6 @@ class ServiceProvider extends \Illuminate\Support\ServiceProvider
         $this->publishSeeder();
         
 //        $this->registerMiddleware(UrlAliasMiddleware::class);
-
-        $this->makeBladeDirective();
-        
     }
 
     /**
@@ -40,6 +37,10 @@ class ServiceProvider extends \Illuminate\Support\ServiceProvider
 
         $this->app->singleton(UrlAliasLocalization::class, function () {
             return new UrlAliasLocalization($this->app);
+        });
+
+        $this->app->singleton(UrlAlias::class, function () {
+            return new UrlAlias($this->app);
         });
     }
 
@@ -74,25 +75,6 @@ class ServiceProvider extends \Illuminate\Support\ServiceProvider
     {
         $kernel = $this->app[Kernel::class];
         $kernel->pushMiddleware($middleware);
-    }
-
-    /**
-     * Make blade directive "@urlAliasCurrent()"
-     */
-    protected function makeBladeDirective()
-    {
-        \Blade::directive('urlAliasCurrent', function ($expression) {
-
-            list($absolute) = explode(', ', $expression);
-
-            $path = request()->server('ALIAS_REQUEST_URI', request()->path());
-
-            if (($absolute || $absolute === '') && $absolute != 'false') {
-                $path = url($path);
-            }
-
-            return "<?php echo('{$path}'); ?>";
-        });
     }
 
     protected function checkMakeDir(string $path)
