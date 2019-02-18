@@ -29,24 +29,4 @@ trait UrlAliasable
 
         return $this->morphMany($model, 'model');
     }
-
-    /**
-     * Get url-alias.
-     *
-     * @return \Illuminate\Contracts\Routing\UrlGenerator|string
-     */
-    public function urlA()
-    {
-        return url(optional($this->urlAlias)->alias ?? config('url-aliases.url_a_is_empty', '/'));
-    }
-
-    /**
-     * Get locale url-alias.
-     *
-     * @return \Illuminate\Contracts\Routing\UrlGenerator|string
-     */
-    public function urlLA()
-    {
-        return url(optional($this->urlAlias)->localeAlias ?? config('url-aliases.url_a_is_empty', '/'));
-    }
 }

@@ -16,7 +16,6 @@ if (!function_exists('route_alias')) {
     }
 }
 
-
 if (!function_exists('url_alias_current')) {
     /**
      * Get current url alias path or system path.
