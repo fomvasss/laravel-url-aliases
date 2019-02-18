@@ -115,18 +115,17 @@ public function show(Request $request, $id)
 ```
 
 ```blade
-<li><a href="{{ route_alias('article.index', ['page' => '3', 'per_page' => 15]) }}">All articles</a></li>
 <li><a href="{{ route('article.show', $article->id) }}">System Link - 301 redirect to alias (if exists)</a></li>
+<li><a href="{{ request()->path() }}">System path - redirect to alias (if exists)</a></li>
+<li><a href="{{ route_alias('article.index', ['page' => '3', 'per_page' => 15]) }}">All articles</a></li>
 <li><a href="{{ route_alias('article.show', [$article, 'page' => '3', 'per_page' => 15]) }}">Alias Link to article - absolute path</a></li>
 <li><a href="{{ route_alias('article.show', $article, false) }}">Alias Link to article - relative path</a></li>
 <li><a href="{{ route_alias('article.show', ['page' => '3', 'per_page' => 15]) }}">System Link - if not exist alias</a></li>
-<li><a href="{{ request()->path() }}">System Link - redirect to alias (if exists)</a></li>
-<li><a href="{{ url_alias_current() }}">Current path (alias or system)</a></li>
 <li><a href="{{ \Fomvasss\UrlAliases\Facades\UrlAlias::route('article.show', $article) }}">Alias Link to article - absolute path</a></li>
 <li><a href="{{ \Fomvasss\UrlAliases\Facades\UrlAlias::current() }}">Current path (alias or system)</a></li>
 ```
 
->In `route_alias()` && `UrlAlias::current()` second argument (if array - first index) may be `id` or the instanceof `\Illuminate\Database\Eloquent\Model` (like `route` Laravel helper)
+>In `UrlAlias::current()` (`route_alias()`) second argument (if array - first index) may be `id` or the instanceof `\Illuminate\Database\Eloquent\Model` (like `route` Laravel helper)
 
 ___
 
@@ -151,8 +150,8 @@ Route::get('/{locale?}', function () {
 5) Save aliases for entity and set locale:
 ```php
     $article->urlAlias()->create([
-        'source' => trim(route('system.article.show', $article, false), '/'),      // Ex.: system/article/26
-        'alias' => str_slug($article->title).'/'.str_slug($article->user->name), // must be unique! Ex.: my-first-article/taylor-otwell
+        'source' => trim(route('system.article.show', $article, false), '/'),		// Ex.: system/article/26
+        'alias' => str_slug($article->title).'/'.str_slug($article->user->name),	// Must be unique! Ex.: my-first-article/taylor-otwell
         'locale' => 'en',
     ]);
 ```
@@ -161,13 +160,14 @@ Route::get('/{locale?}', function () {
     UrlAliasLocalization::getDefaultLocale()
     UrlAliasLocalization::getCurrentLocale()
     UrlAliasLocalization::getCurrentLocaleName()
-    UrlAliasLocalization::getCurrentLocaleName()
     UrlAliasLocalization::getCurrentLocaleNative()
     UrlAliasLocalization::getCurrentLocaleNativeReading()
     UrlAliasLocalization::getCurrentLocaleRegional()
+    UrlAliasLocalization::getCurrentLocaleDirection()
     UrlAliasLocalization::getCurrentLocaleScript()
     UrlAliasLocalization::getLocalesOrder()
     UrlAliasLocalization::getSupportedLocales()
+    UrlAliasLocalization::getSupportedLanguagesKeys()
 ```
 
 ## Links

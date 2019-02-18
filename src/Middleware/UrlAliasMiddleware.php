@@ -45,7 +45,9 @@ class UrlAliasMiddleware
 
                 if (isset($localizationResult['redirect'])) {
                     $params = count($request->all()) ? '?' . http_build_query($request->all()) : '';
-                    return redirect()->to($localizationResult['redirect'] . $params, 301); // hide default locale in URL
+
+                    // Hide default locale in URL
+                    return redirect()->to($localizationResult['redirect'] . $params, 302);
                 } elseif (isset($localizationResult['path'])) {
                     $path = $localizationResult['path'];
                 }
@@ -54,7 +56,7 @@ class UrlAliasMiddleware
             $urlModels = $this->getByPath($path);
 
             // If visited source - system path
-            if ($urlModel = $urlModels->where('source', $path)->where('locale', $this->app->getLocale())->first()/* && $path != 'de'*/) {
+            if ($urlModel = $urlModels->where('source', $path)->where('locale', $this->app->getLocale())->first()) {
 
                 $redirectStatus = $this->config->get('url-aliases.redirect_for_system_path', 301) == 301 ? 301 : 302;
 
