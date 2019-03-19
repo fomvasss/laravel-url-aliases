@@ -85,4 +85,9 @@ class UrlAliasLocalization
     {
         return $this->config->get('url-aliases-laravellocalization.hideDefaultLocaleInURL');
     }
+
+    public function getRoot()
+    {
+        return url($this->currentLocale);
+    }
 }

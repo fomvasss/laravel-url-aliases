@@ -168,6 +168,7 @@ Route::get('/{locale?}', function () {
     UrlAliasLocalization::getLocalesOrder()
     UrlAliasLocalization::getSupportedLocales()
     UrlAliasLocalization::getSupportedLanguagesKeys()
+    UrlAliasLocalization::getRoot() // http://site.com/ua, http://site.com/de 
 ```
 
 ## Links

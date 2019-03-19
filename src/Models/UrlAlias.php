@@ -61,7 +61,7 @@ class UrlAlias extends Model
      */
     public function setAliasAttribute($value)
     {
-        $this->attributes['alias'] = trim($value, '/');
+        $this->attributes['alias'] = $value == '/' ? $value : trim($value, '/');
     }
 
     /**
@@ -69,7 +69,7 @@ class UrlAlias extends Model
      */
     public function setSourceAttribute($value)
     {
-        $this->attributes['source'] = trim($value, '/');
+        $this->attributes['source'] = $value == '/' ? $value : trim($value, '/');
     }
 
     /**

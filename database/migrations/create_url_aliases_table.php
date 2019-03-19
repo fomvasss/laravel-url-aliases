@@ -16,7 +16,7 @@ class CreateUrlAliasesTable extends Migration
         Schema::create('url_aliases', function (Blueprint $table) {
             $table->increments('id');
             $table->string('source')->index();
-            $table->string('alias')->unique();
+            $table->string('alias')->index();
             $table->string('locale')->nullable();
 
             $table->string('type', 5)->nullable(); // null - is alias | 301 | 302
