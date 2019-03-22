@@ -88,17 +88,25 @@ public function store(Request $request)
         //...
     ]);
     
+    // 1) Make alias for system route:
     $article->urlAlias()->create([
         'source' => trim(route('article.show', $article, false), '/'),      // Ex.: system/article/26
         'alias' => str_slug($article->title).'/'.str_slug($article->user->name), // must be unique! Ex.: my-first-article/taylor-otwell
+    ]); 
+        
+    // 2) Or custom redirection:
+    $article->urlAlias()->create([
+        'source' => 'about',
+        'alias' => 'page/about'
+        'type' => 301, // Status Code
     ]);
     
-    // Or if external link:
-    $article->urlAlias()->create([
-        'source' => 'https://google.com.ua',
-        'alias' => 'my-google'
-        'type' => 301,          // type redirect!
-    ]);
+	// 3) Or if external link:
+	$article->urlAlias()->create([
+		'source' => 'https://google.com.ua',
+		'alias' => 'my-google'
+		'type' => 302, // Status Code
+	]);
 
     return redirect()->route('article.index');
 }

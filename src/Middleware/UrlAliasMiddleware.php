@@ -8,17 +8,13 @@ use Illuminate\Http\Request;
 
 class UrlAliasMiddleware
 {
-
+    /** @var string */
     const ALIAS_REQUEST_URI_KEY = 'ALIAS_REQUEST_URI';
 
-    /**
-     * @var
-     */
+    /** @var */
     protected $config;
 
-    /**
-     * @var bool
-     */
+    /** @var bool */
     protected $useLocalization = false;
 
     /**
@@ -56,7 +52,7 @@ class UrlAliasMiddleware
             $urlModels = $this->getByPath($path);
 
             // If visited source - system path
-            if ($urlModel = $urlModels->where('source', $path)->where('locale', $this->app->getLocale())->first()) {
+            if ($urlModel = $urlModels->where('source', $path)->where('locale', $this->app->getLocale())->where('type', null)->first()) {
 
                 $redirectStatus = $this->config->get('url-aliases.redirect_for_system_path', 301) == 301 ? 301 : 302;
 
@@ -69,18 +65,17 @@ class UrlAliasMiddleware
 
                 return redirect()->to(url($urlModel->alias) . '/' . $params, $redirectStatus);
 
-                // If visited alias
-            } elseif ($urlModel = $urlModels->where('alias', $path)->where('locale', $this->app->getLocale())->first()) {
-
-                // Redirect to source
-                if ($redirect = $this->isTypeRedirect($urlModel)) {
-                    return $redirect;
-                }
-
-                // Make new request
-                $newRequest = $this->makeNewRequest($request, $urlModel);
+            // If visited alias
+            } elseif ($urlModel = $urlModels->where('alias', $path)->where('locale', $this->app->getLocale())->where('type', null)->first()) {
                 
+                $newRequest = $this->makeNewRequest($request, $urlModel);
+
                 return $next($newRequest);
+
+            // If custom redirection
+            } elseif ($urlModel = $urlModels->where('alias', $path)->where('type', '<>', null)->first()) {
+
+                return redirect(url($urlModel->source), $urlModel->type);
                 
             // Check if isset facet in current url and find aliased path without facet
             } elseif ($customReturn = $this->customize($request, $next)) {
@@ -93,7 +88,8 @@ class UrlAliasMiddleware
     }
 
     /**
-     * Remake request
+     * Remake request.
+     * 
      * @param Request $request
      * @param $urlModel
      * @return Request
@@ -119,6 +115,11 @@ class UrlAliasMiddleware
         return $newRequest;
     }
 
+    /**
+     * @param $request
+     * @param \Closure $next
+     * @return mixed
+     */
     public function customize($request, Closure $next)
     {
        //...
@@ -126,6 +127,7 @@ class UrlAliasMiddleware
     }
 
     /**
+     * TODO: IS DEPRECATED
      * If type redirect - redirect.
      * @param $urlModel
      * @return bool|\Illuminate\Http\RedirectResponse|\Illuminate\Routing\Redirector
