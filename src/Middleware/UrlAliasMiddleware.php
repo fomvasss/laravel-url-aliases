@@ -8,9 +8,6 @@ use Illuminate\Http\Request;
 
 class UrlAliasMiddleware
 {
-    /** @var string */
-    const ALIAS_REQUEST_URI_KEY = 'ALIAS_REQUEST_URI';
-
     /** @var */
     protected $config;
 
@@ -33,7 +30,7 @@ class UrlAliasMiddleware
 
             $path = $request->path();
 
-            // Check lovalization support
+            // Check localization support
             if ($this->useLocalization = $this->config->get('url-aliases.use_localization') && $this->isAvailableLocalizationPath($request)) {
                 $localization = $this->app->make(UrlAliasLocalization::class);
 
@@ -104,12 +101,10 @@ class UrlAliasMiddleware
             $request->attributes->all(),
             $request->cookies->all(),
             $request->files->all(),
-            $newRequest->server->all() + [static::ALIAS_REQUEST_URI_KEY => $request->path()],
+            $newRequest->server->all() + ['ALIAS_REQUEST_URI' => $request->path(), 'ALIAS_ID' => $urlModel->id, 'ALIAS_LOCALE_BOUND' => $urlModel->locale_bound],
             $request->getContent()
         );
 
-//          $request = \Request::create($systemPath, 'GET');
-//          return $response = \Route::dispatch($request);
         $newRequest->merge($getParams);
 
         return $newRequest;

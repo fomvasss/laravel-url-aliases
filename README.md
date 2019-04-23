@@ -161,6 +161,7 @@ Route::get('/{locale?}', function () {
         'source' => trim(route('system.article.show', $article, false), '/'),		// Ex.: system/article/26
         'alias' => str_slug($article->title).'/'.str_slug($article->user->name),	// Must be unique! Ex.: my-first-article/taylor-otwell
         'locale' => 'en',
+        'locale_bound' => 123,                                                      // for related locale aliases
     ]);
 ```
 6) Use facade `UrlAliasLocalization` and next methods (like in [mcamara/laravel-localization](https://github.com/mcamara/laravel-localization)):
@@ -177,6 +178,7 @@ Route::get('/{locale?}', function () {
     UrlAliasLocalization::getSupportedLocales()
     UrlAliasLocalization::getSupportedLanguagesKeys()
     UrlAliasLocalization::getRoot() // http://site.com/ua, http://site.com/de 
+    UrlAliasLocalization::getLocalesBound() // Get locales and links to related locale aliases 
 ```
 
 ## Links

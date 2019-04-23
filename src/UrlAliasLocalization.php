@@ -86,8 +86,38 @@ class UrlAliasLocalization
         return $this->config->get('url-aliases-laravellocalization.hideDefaultLocaleInURL');
     }
 
+    /**
+     * @return \Illuminate\Contracts\Routing\UrlGenerator|string
+     */
     public function getRoot()
     {
         return url($this->currentLocale);
+    }
+
+    /**
+     * @param string $default
+     * @param bool $absolute
+     * @return array
+     */
+    public function getLocalesBound(string $default = '', $absolute = true)
+    {
+        $bound = request()->server('ALIAS_LOCALE_BOUND');
+
+        $model = $this->config->get('url-aliases.model', \Fomvasss\UrlAliases\Models\UrlAlias::class);
+        $aliasModels = $model::whereNotNull('locale_bound')->where('locale_bound', $bound)->get();
+
+        $res = $this->supportedLocales;
+        foreach ($this->supportedLocales as $key => $item) {
+            if ($model = $aliasModels->where('locale', $key)->first()) {
+                $link = $model->localeAlias;
+            } elseif($default) {
+                $link = $default;
+            } else {
+                $link = $key;
+            }
+            $res[$key]['url'] = $absolute ? url($link) : $link;
+        }
+
+        return $res;
     }
 }
