@@ -33,6 +33,8 @@ class UrlAliasLocalization
 
         $this->defaultLocale = $this->getDefaultLocale();
 
+        $this->config->set('url-aliases-laravellocalization.origin_default_locale', $this->defaultLocale); // virtual temporary config
+
         $this->currentLocale = $this->defaultLocale;
 
         $this->supportedLocales = $this->getSupportedLocales();

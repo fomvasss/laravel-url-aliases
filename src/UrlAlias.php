@@ -30,7 +30,7 @@ class UrlAlias
         $this->config = $this->app['config'];
     }
     
-    public function route(string $systemName, $parameters = [], $absolute = true, $forceWithLocalePreffix = false): string
+    public function route(string $systemName, $parameters = [], $absolute = true, $forceWithLocalePrefix = false): string
     {
         $parameters = array_wrap($parameters);
 
@@ -39,7 +39,7 @@ class UrlAlias
             if ($entity->urlAlias) {
                 unset($parameters[0]);
 
-                if (! $forceWithLocalePreffix && $this->config->get('app.locale') == $entity->urlAlias->locale && $this->config->get('url-aliases-laravellocalization.hideDefaultLocaleInURL')) {
+                if ($this->config->get('url-aliases-laravellocalization.origin_default_locale') == $entity->urlAlias->locale && $this->config->get('url-aliases-laravellocalization.hideDefaultLocaleInURL') && !$forceWithLocalePrefix) {
                     $alias = $entity->urlAlias->alias;
                 } else {
                     $alias = $entity->urlAlias->localeAlias;
