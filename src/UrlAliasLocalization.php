@@ -95,23 +95,58 @@ class UrlAliasLocalization
     }
 
     /**
+     * TODO: DEPRECATED!!!
      * @param string $default
      * @param bool $absolute
      * @return array
      */
     public function getLocalesBound(string $default = '', $absolute = true)
     {
+        return $this->getCurrentBound($default, $absolute);
+    }
+    /**
+     * @param string $default
+     * @param bool $absolute
+     * @return array
+     */
+    public function getCurrentBound(string $default = '', $absolute = true)
+    {
         $bound = request()->server('ALIAS_LOCALE_BOUND');
 
-        $model = $this->config->get('url-aliases.model', \Fomvasss\UrlAliases\Models\UrlAlias::class);
-        $aliasModels = $model::whereNotNull('locale_bound')->where('locale_bound', $bound)->get();
+        $modelClass = $this->config->get('url-aliases.model', \Fomvasss\UrlAliases\Models\UrlAlias::class);
+        $aliasModels = $modelClass::whereNotNull('locale_bound')->where('locale_bound', $bound)->get();
 
         $res = $this->supportedLocales;
         foreach ($this->supportedLocales as $key => $item) {
-            if ($model = $aliasModels->where('locale', $key)->first()) {
-                $link = $model->localeAlias;
+            if ($modelClass = $aliasModels->where('locale', $key)->first()) {
+                $link = $modelClass->localeAlias;
             } elseif($default) {
                 $link = $default;
+            } else {
+                $link = $key;
+            }
+            $res[$key]['url'] = $absolute ? url($link) : $link;
+        }
+
+        return $res;
+    }
+
+    /**
+     * @param null $bound
+     * @param bool $absolute
+     * @return array
+     */
+    public function getLocalesModelsBound($bound = null, $absolute = true)
+    {
+        $modelClass = $this->config->get('url-aliases.model', \Fomvasss\UrlAliases\Models\UrlAlias::class);
+        $aliasModels = $modelClass::whereNotNull('locale_bound')->where('locale_bound', $bound)->get();
+
+        $res = $this->supportedLocales;
+        foreach ($this->supportedLocales as $key => $item) {
+            $res[$key]['model'] = null;
+            if ($model = $aliasModels->where('locale', $key)->first()) {
+                $link = $model->localeAlias;
+                $res[$key]['model'] = $model->aliasable;
             } else {
                 $link = $key;
             }
