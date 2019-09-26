@@ -97,16 +97,6 @@ class UrlAliasLocalization
     }
 
     /**
-     * TODO: DEPRECATED!!!
-     * @param string $default
-     * @param bool $absolute
-     * @return array
-     */
-    public function getLocalesBound(string $default = '', $absolute = true)
-    {
-        return $this->getCurrentBound($default, $absolute);
-    }
-    /**
      * @param string $default
      * @param bool $absolute
      * @return array

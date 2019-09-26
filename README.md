@@ -31,8 +31,7 @@ php artisan migrate
 1) Add to your model next trait: `Fomvasss\UrlAliases\Traits\UrlAliasable` 
 
 This trait have next relation-method:
--  `urlAlias()`		//return model UrlAlias
--  `urlAliases()`	//return models UrlAliases (rarely used!)
+-  `urlAlias()` - related UrlAlias model
 
 >Do not forget use `with('urlAlias')` in your models when you get list!
 
