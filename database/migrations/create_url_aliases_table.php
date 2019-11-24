@@ -21,12 +21,12 @@ class CreateUrlAliasesTable extends Migration
 
             $table->string('type', 5)->nullable(); // null - is alias | 301 | 302
             $table->string('model_type')->nullable();
-            $table->integer('model_id')->nullable();
+            $table->unsignedBigInteger('model_id')->nullable();
             $table->string('locale_bound')->nullable();
 
             $table->index(['source', 'locale']);
             $table->unique(['alias', 'locale']);
-            $table->unique(['model_type', 'model_id']);
+            $table->unique(['model_type', 'model_id', 'locale']);
         });
     }
 
