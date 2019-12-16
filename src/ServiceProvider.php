@@ -7,8 +7,6 @@ use Illuminate\Contracts\Http\Kernel;
 
 class ServiceProvider extends \Illuminate\Support\ServiceProvider
 {
-    protected $defer = false;
-
     /**
      * Bootstrap the application services.
      *
@@ -20,8 +18,6 @@ class ServiceProvider extends \Illuminate\Support\ServiceProvider
 
         $this->publishMigrations();
 
-        $this->publishSeeder();
-        
 //        $this->registerMiddleware(UrlAliasMiddleware::class);
     }
 
@@ -50,14 +46,6 @@ class ServiceProvider extends \Illuminate\Support\ServiceProvider
             __DIR__ . '/../config/url-aliases.php' => config_path('url-aliases.php'),
             __DIR__ . '/../config/url-aliases-laravellocalization.php' => config_path('url-aliases-laravellocalization.php'),
         ], 'url-aliases-config');
-    }
-
-    protected function publishSeeder()
-    {
-        $seedPath = __DIR__ . '/../database/seeds/UrlAliasesTableSeeder.php.stub';
-        $this->publishes([
-            $seedPath => database_path('seeds/UrlAliasesTableSeeder.php')
-        ], 'url-aliases-seeder');
     }
 
     protected function publishMigrations()

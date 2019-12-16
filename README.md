@@ -19,7 +19,6 @@ php artisan vendor:publish --provider="Fomvasss\UrlAliases\ServiceProvider"
 ```
 - config
 - migration
-- test seeder
 
 3) Run migrate:
 ```shell
