@@ -147,4 +147,23 @@ class UrlAliasLocalization
 
         return $res;
     }
+
+    /**
+     * @param string $localeKey
+     * @param string|null $bound
+     * @return mixed|null
+     */
+    public function getLocaleModelBound(string $localeKey, ?string $bound = null)
+    {
+        if ($bound) {
+            $modelClass = $this->config->get('url-aliases.model', \Fomvasss\UrlAliases\Models\UrlAlias::class);
+
+            return optional($modelClass::whereNotNull('locale_bound')
+                ->where('locale_bound', $bound)
+                ->where('locale', $localeKey)
+                ->first())->aliasable;
+        }
+
+        return null;
+    }
 }

@@ -177,6 +177,7 @@ Route::get('/{locale?}', function () {
     UrlAliasLocalization::getSupportedLanguagesKeys()
     UrlAliasLocalization::getRoot() // http://site.com/ua, http://site.com/de 
     UrlAliasLocalization::getCurrentBound() // Get locales and links to related locale aliases 
+    UrlAliasLocalization::getLocaleModelBound()
     UrlAliasLocalization::getLocalesModelsBound()
 ```
 

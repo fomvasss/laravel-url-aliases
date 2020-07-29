@@ -29,4 +29,16 @@ trait UrlAliasable
 
         return $this->morphMany($model, 'model');
     }
+
+    /**
+     * @return |null
+     */
+    public function getLocaleboundStr()
+    {
+        if ($this->urlAlias) {
+            return $this->urlAlias->locale_bound;
+        } 
+        
+        return null;
+    }
 }
