@@ -49,7 +49,7 @@ class UrlAliasMiddleware
             $urlModels = $this->getByPath($path);
 
             // If visited source - system path
-            if ($urlModel = $urlModels->where('source', $path)->where('locale', $this->app->getLocale())->where('type', null)->first()) {
+            if ($urlModel = $urlModels->where('source', $path)->where('type', null)->first()) {
 
                 $redirectStatus = $this->config->get('url-aliases.redirect_for_system_path', 301) == 301 ? 301 : 302;
 
