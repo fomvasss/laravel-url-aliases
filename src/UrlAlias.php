@@ -54,6 +54,15 @@ class UrlAlias
             }
         }
 
+        if (!empty($this->config['url-aliases']['use_localization'])) {
+            $relativePath = trim(route($systemName, $parameters, false), '/');
+
+            if ($absolute) {
+                return url($this->config['app']['locale'] . '/' . $relativePath);
+            }
+            return $relativePath;
+        }
+
         return route($systemName, $parameters, $absolute);
     }
 

@@ -75,7 +75,7 @@ class UrlAliasMiddleware
                 return redirect(url($urlModel->source), $urlModel->type);
                 
             // Check if isset facet in current url and find aliased path without facet
-            } elseif ($customReturn = $this->customize($request, $next)) {
+            } elseif ($customReturn = $this->customize($request, $next, $path)) {
 
                 return $customReturn;
             }
@@ -115,8 +115,20 @@ class UrlAliasMiddleware
      * @param \Closure $next
      * @return mixed
      */
-    public function customize($request, Closure $next)
+    public function customize($request, Closure $next, $path)
     {
+        $newRequest = $request;
+        $newRequest->server->set('REQUEST_URI', $path);
+        $newRequest->initialize(
+            $request->query->all(),
+            $request->request->all(),
+            $request->attributes->all(),
+            $request->cookies->all(),
+            $request->files->all(),
+            $newRequest->server->all(),
+            $request->getContent()
+        );
+        
        //...
         return $next($request);
     }
