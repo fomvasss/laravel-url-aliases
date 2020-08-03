@@ -166,4 +166,19 @@ class UrlAliasLocalization
 
         return null;
     }
+
+
+    /**
+     * @param string $valueField [key, name, native]
+     * @return array
+     */
+    public function getSupportedLocalesForSelect(string $valueField = 'key')
+    {
+        $res = [];
+        foreach ($this->supportedLocales as $key => $value) {
+            $res[$key] = $valueField === 'key' ? $key : ($value[$valueField] ?? $key);
+        }
+
+        return $res;
+    }
 }

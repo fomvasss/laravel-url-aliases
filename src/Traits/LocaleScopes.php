@@ -14,7 +14,8 @@ trait LocaleScopes
     {
         $locale = $locale ?: \UrlAliasLocalization::getCurrentLocale();
 
-        return $query->whereLocale($locale);
+        return $query->whereLocale($locale)
+            ->orWhereNull('locale');
     }
 
 
@@ -28,7 +29,8 @@ trait LocaleScopes
         $locales = $locales ?: session('app_locales');
 
         if ($locales) {
-            return $query->whereIn('locale', is_array($locales) ? $locales : [$locales]);
+            return $query->whereIn('locale', is_array($locales) ? $locales : [$locales])
+                ->orWhereNull('locale');
         }
     }
 }
