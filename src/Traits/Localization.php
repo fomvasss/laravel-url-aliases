@@ -1,10 +1,4 @@
 <?php
-/**
- * Created by PhpStorm.
- * User: fomvasss
- * Date: 13.11.18
- * Time: 1:09
- */
 
 namespace Fomvasss\UrlAliases\Traits;
 
