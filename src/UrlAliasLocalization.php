@@ -65,7 +65,11 @@ class UrlAliasLocalization
                 return ['redirect' => $path];
             }
 
-            $this->currentLocale = $segment1;
+            if ($key = $this->config->get('url-aliases.use_key_get_param_localization')) {
+                $this->currentLocale = request($key, $segment1);
+            } else {
+                $this->currentLocale = $segment1;
+            }
             $this->app->setLocale($segment1);
         }
 

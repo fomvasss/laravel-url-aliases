@@ -14,6 +14,8 @@ return [
      */
     'use_localization' => false,
 
+    'use_key_get_param_localization' => 'locale',
+
     /* -----------------------------------------------------------------
      |  Redirect code if visit systep path.
      |  301|302|false
