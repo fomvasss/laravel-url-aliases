@@ -53,7 +53,7 @@ if (!function_exists('is_url')) {
      */
     function is_url(string $str)
     {
-        return filter_var($str, FILTER_VALIDATE_URL, FILTER_FLAG_HOST_REQUIRED);
+        return filter_var($str, FILTER_VALIDATE_URL);
     }
 }
 
